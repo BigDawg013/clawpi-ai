@@ -1,0 +1,89 @@
+{
+  "_comment": "Example OpenClaw config. Real config lives at ~/.openclaw/openclaw.json on the Pi.",
+
+  "auth": {
+    "profiles": {
+      "anthropic:default": {
+        "provider": "anthropic",
+        "mode": "api_key"
+      }
+    }
+  },
+
+  "agents": {
+    "defaults": {
+      "workspace": "/home/<user>/.openclaw/workspace",
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "ttl": "1h"
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "heartbeat": {
+        "every": "30m"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    }
+  },
+
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "botToken": "<YOUR_TELEGRAM_BOT_TOKEN>",
+      "groupPolicy": "allowlist",
+      "streamMode": "partial"
+    }
+  },
+
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "tailnet",
+    "auth": {
+      "mode": "token",
+      "token": "<AUTO_GENERATED_DURING_ONBOARD>"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "calendar.add",
+        "contacts.add",
+        "reminders.add"
+      ]
+    }
+  },
+
+  "skills": {
+    "install": {
+      "nodeManager": "pnpm"
+    }
+  },
+
+  "plugins": {
+    "entries": {
+      "telegram": {
+        "enabled": true
+      }
+    }
+  }
+}

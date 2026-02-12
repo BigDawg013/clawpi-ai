@@ -3,13 +3,16 @@ set -euo pipefail
 
 # ──────────────────────────────────────────────
 # clawpi-ai installer
-# Sets up Node.js, OpenClaw, and systemd service
-# on a Raspberry Pi running Debian/Raspberry Pi OS.
+# Sets up Node.js, OpenClaw, and pnpm on a
+# Raspberry Pi running Debian / Raspberry Pi OS.
+#
+# Usage: chmod +x scripts/install.sh && ./scripts/install.sh
 # ──────────────────────────────────────────────
 
 echo "═══════════════════════════════════════════"
 echo "  clawpi-ai installer"
 echo "═══════════════════════════════════════════"
+echo ""
 
 # ── Node.js ──────────────────────────────────
 if command -v node &>/dev/null; then
@@ -21,6 +24,15 @@ else
     echo "✓ Node.js installed: $(node --version)"
 fi
 
+# ── pnpm ─────────────────────────────────────
+if command -v pnpm &>/dev/null; then
+    echo "✓ pnpm already installed: $(pnpm --version)"
+else
+    echo "Installing pnpm..."
+    sudo npm i -g pnpm
+    echo "✓ pnpm installed: $(pnpm --version)"
+fi
+
 # ── OpenClaw ─────────────────────────────────
 if command -v openclaw &>/dev/null; then
     echo "✓ OpenClaw already installed: $(openclaw --version)"
@@ -30,40 +42,11 @@ else
     echo "✓ OpenClaw installed: $(openclaw --version)"
 fi
 
-# ── Systemd service ──────────────────────────
-SERVICE_FILE="/etc/systemd/system/clawpi-ai.service"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_DIR="$(dirname "$SCRIPT_DIR")"
-
-if [ -f "$SERVICE_FILE" ]; then
-    echo "✓ systemd service already exists"
-else
-    echo "Creating systemd service..."
-    sudo tee "$SERVICE_FILE" > /dev/null << EOF
-[Unit]
-Description=clawpi-ai — OpenClaw AI assistant
-After=network-online.target tailscaled.service
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=$(whoami)
-WorkingDirectory=/home/$(whoami)
-ExecStart=/usr/bin/openclaw serve
-Restart=on-failure
-RestartSec=10
-EnvironmentFile=-/home/$(whoami)/clawpi-ai/scripts/openclaw.env
-
-[Install]
-WantedBy=multi-user.target
-EOF
-    sudo systemctl daemon-reload
-    echo "✓ systemd service created"
-fi
-
 echo ""
 echo "═══════════════════════════════════════════"
+echo "  Installation complete!"
+echo ""
 echo "  Next steps:"
-echo "  1. Run: openclaw onboard"
-echo "  2. Run: sudo systemctl enable --now clawpi-ai"
+echo "    1. Run onboarding (see docs/SETUP.md step 4)"
+echo "    2. Enable Telegram (see docs/SETUP.md step 5)"
 echo "═══════════════════════════════════════════"
